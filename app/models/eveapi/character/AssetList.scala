@@ -20,7 +20,7 @@ object AssetListID extends TypedIDCompanion[AssetListID]
 case class AssetList(id: Option[AssetListID], characterID: CharacterID, createdAt: DateTime, cachedUntil: DateTime) extends WithOptionalID[AssetListID]
 object AssetList { implicit val jsonFormat = Json.format[AssetList] }
 
-class AssetListTable(tag: Tag) extends OptionalIDTable[AssetListID, AssetList](tag, "eveats_asset_list") {
+class AssetListTable(tag: Tag) extends OptionalIDTable[AssetListID, AssetList](tag, "eveats_character_asset_list") {
 
   def characterID = column[CharacterID]("character_id")
   def createdAt = column[DateTime]("created_at")
@@ -54,7 +54,7 @@ case class AssetItem(
 
 object AssetItem { implicit val jsonFormat = Json.format[AssetItem] }
 
-class AssetItemTable(tag: Tag) extends Table[AssetItem](tag, "eveats_asset_item") {
+class AssetItemTable(tag: Tag) extends Table[AssetItem](tag, "eveats_character_asset_item") {
   def id = column[AssetItemID]("id")
   def assetListID = column[AssetListID]("asset_list_id")
   def parentID = column[Option[AssetItemID]]("parent_id")
@@ -80,8 +80,25 @@ class AssetItemTable(tag: Tag) extends Table[AssetItem](tag, "eveats_asset_item"
     rawQuantity) <> ((AssetItem.apply _).tupled, AssetItem.unapply)
 }
 
+/**
+ * TODO: Implement queries
+ */
 object AssetItemTable {
   val query = TableQuery[AssetItemTable]
 
 
+}
+
+/**
+ * AssetTree
+ *
+ */
+sealed trait AssetTree
+case class AssetTreeNode(assetItem: AssetItem, childs: Set[AssetItem]) extends AssetTree
+
+object AssetTree {
+
+  def apply(items: Set[AssetItem]): Seq[AssetTree] =
+
+  implicit val jsonFormat = Json.format[AssetTreeNode]
 }
