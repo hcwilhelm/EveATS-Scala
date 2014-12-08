@@ -5,12 +5,19 @@ import models.core.TypesafeID.driver.simple._
 import org.joda.time.DateTime
 import play.api.libs.json.Json
 
+
+/**
+ * AffiliationID
+ *
+ */
+sealed trait AffiliationID extends Any with TypedID
+
 /**
  * CharacterID
  *
  * @param untypedID
  */
-case class CharacterID(untypedID: Long) extends AnyVal with TypedID
+case class CharacterID(untypedID: Long) extends AnyVal with AffiliationID
 object CharacterID extends TypedIDCompanion[CharacterID]
 
 /**
@@ -18,7 +25,7 @@ object CharacterID extends TypedIDCompanion[CharacterID]
  *
  * @param untypedID
  */
-case class CorporationID(untypedID: Long) extends AnyVal with TypedID
+case class CorporationID(untypedID: Long) extends AnyVal with AffiliationID
 object CorporationID extends TypedIDCompanion[CorporationID]
 
 

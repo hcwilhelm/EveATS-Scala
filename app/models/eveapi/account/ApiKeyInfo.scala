@@ -8,6 +8,9 @@ import play.api.libs.json.{Json, JsResult, JsValue, Format}
 
 import scala.slick.model.ForeignKeyAction.Cascade
 
+/**
+ * KeyType
+ */
 sealed trait KeyType
 case object Account extends KeyType
 case object Character extends KeyType
@@ -29,17 +32,26 @@ object KeyType {
   }
 }
 
+/**
+ * ApiKeyInfo
+ *
+ * @param id
+ * @param accessMask
+ * @param keyType
+ * @param expires
+ * @param cachedUntil
+ */
 case class ApiKeyInfo(id: ApiKeyID, accessMask: Int, keyType: KeyType, expires: Option[DateTime], cachedUntil: DateTime) extends WithID[ApiKeyID]
+object ApiKeyInfo { implicit val jsonApiKeyInfoFormat = Json.format[ApiKeyInfo] }
 
-object ApiKeyInfo {
-
-
-  implicit val jsonApiKeyInfoFormat = Json.format[ApiKeyInfo]
-}
-
+/**
+ * ApiKeyTable
+ *
+ * @param tag
+ */
 class ApiKeyInfoTable(tag: Tag) extends IDTable[ApiKeyID, ApiKeyInfo](tag, "eveats_apikey_info") {
 
-  implicit val columnTypeMapper = MappedColumnType.base[KeyType, String](_.toString, KeyType(_))
+  implicit val keyTypeColumnTypeMapper = MappedColumnType.base[KeyType, String](_.toString, KeyType(_))
 
   def accessMask = column[Int]("access_mask")
   def keyType = column[KeyType]("key_type")
