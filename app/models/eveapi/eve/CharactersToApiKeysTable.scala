@@ -5,7 +5,7 @@ import models.eveats.{ApiKey, ApiKeyTable, ApiKeyID}
 
 import scala.slick.model.ForeignKeyAction.Cascade
 
-class CharactersToApiKeys(tag: Tag) extends Table[(CharacterID, ApiKeyID)](tag, "eveats_characters_to_apikeys") {
+class CharactersToApiKeysTable(tag: Tag) extends Table[(CharacterID, ApiKeyID)](tag, "eveats_characters_to_apikeys") {
   def characterID = column[CharacterID]("character_id")
   def apiKeyID = column[ApiKeyID]("apikey_id")
 
@@ -16,8 +16,8 @@ class CharactersToApiKeys(tag: Tag) extends Table[(CharacterID, ApiKeyID)](tag, 
   def * = (characterID, apiKeyID)
 }
 
-object CharactersToApiKeys {
-  val query = TableQuery[CharactersToApiKeys]
+object CharactersToApiKeysTable {
+  val query = TableQuery[CharactersToApiKeysTable]
 
   type Row = (CharacterID, ApiKeyID)
 

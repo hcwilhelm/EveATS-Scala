@@ -1,10 +1,8 @@
 package models.eveapi.character
 
-import models.core.TypesafeID._
 import models.core.TypesafeID.driver.simple._
 import models.eveapi.common._
-import models.eveapi.eve.{CharacterTable, CharacterID}
-import models.evedump.{TypeID, ItemID}
+import models.eveapi.eve.{CharacterID, CharacterTable}
 import org.joda.time.DateTime
 import play.api.libs.json.Json
 
@@ -29,6 +27,7 @@ object CharacterAssetList { implicit val jsonFormat = Json.format[CharacterAsset
  */
 class CharacterAssetListTable(tag: Tag) extends AssetListTable[CharacterID, CharacterAssetList](tag, "eveats_character_asset_list") {
   def * = (id.?, affiliationID, createdAt, cachedUntil) <> ((CharacterAssetList.apply _).tupled, CharacterAssetList.unapply)
+  def affiliation = foreignKey("affiliation_fk", affiliationID, TableQuery[CharacterTable])(_.id, onUpdate = Cascade, onDelete = Cascade)
 }
 
 object CharacterAssetListTable extends AssetListRepository[CharacterID, CharacterAssetList, CharacterAssetListTable](TableQuery[CharacterAssetListTable])

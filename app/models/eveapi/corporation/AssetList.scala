@@ -2,9 +2,11 @@ package models.eveapi.corporation
 
 import models.core.TypesafeID.driver.simple._
 import models.eveapi.common._
-import models.eveapi.eve.{CorporationID, CharacterID}
+import models.eveapi.eve.{CorporationID, CorporationTable}
 import org.joda.time.DateTime
 import play.api.libs.json.Json
+
+import scala.slick.model.ForeignKeyAction.Cascade
 
 /**
  * CorporationAssetList
@@ -16,7 +18,7 @@ import play.api.libs.json.Json
  */
 case class CorporationAssetList(id: Option[AssetListID], affiliationID: CorporationID, createdAt: DateTime, cachedUntil: DateTime) extends AssetList[CorporationID]
 
-object CharacterAssetList { implicit val jsonFormat = Json.format[CorporationAssetList] }
+object CorporationAssetList { implicit val jsonFormat = Json.format[CorporationAssetList] }
 
 /**
  * CorporationAssetListTable
@@ -25,9 +27,10 @@ object CharacterAssetList { implicit val jsonFormat = Json.format[CorporationAss
  */
 class CorporationAssetListTable(tag: Tag) extends AssetListTable[CorporationID, CorporationAssetList](tag, "eveats_corporation_asset_list") {
   def * = (id.?, affiliationID, createdAt, cachedUntil) <> ((CorporationAssetList.apply _).tupled, CorporationAssetList.unapply)
+  def affiliation = foreignKey("affiliation_fk", affiliationID, TableQuery[CorporationTable])(_.id, onUpdate = Cascade, onDelete = Cascade)
 }
 
-object CharacterAssetListTable extends AssetListRepository[CorporationID, CorporationAssetList, CorporationAssetListTable](TableQuery[CorporationAssetListTable])
+object CorporationAssetListTable extends AssetListRepository[CorporationID, CorporationAssetList, CorporationAssetListTable](TableQuery[CorporationAssetListTable])
 
 /**
  * CorporationAssetItemTable

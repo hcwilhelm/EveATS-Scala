@@ -8,6 +8,7 @@ import models.evedump.{ItemID, TypeID}
 import org.joda.time.DateTime
 import play.api.libs.json.{JsResult, JsValue, Format, Json}
 
+import scala.slick.lifted.ForeignKeyQuery
 import scala.slick.model.ForeignKeyAction.Cascade
 
 /**
@@ -19,11 +20,9 @@ case class AssetListID(untypedID: Long) extends AnyVal with TypedID
 object AssetListID extends TypedIDCompanion[AssetListID]
 
 /**
- * Abstract AssetList
+ * AssetList
  *
- * @param id
- * @param createdAt
- * @param cachedUntil
+ * @tparam REF
  */
 trait AssetList[REF <: AffiliationID] extends WithOptionalID[AssetListID] {
   def id: Option[AssetListID]
@@ -32,6 +31,17 @@ trait AssetList[REF <: AffiliationID] extends WithOptionalID[AssetListID] {
   def cachedUntil: DateTime
 }
 
+/**
+ * AssetListTable
+ *
+ * @param tag
+ * @param schemaName
+ * @param tableName
+ * @param idMapping
+ * @param refMapping
+ * @tparam REF
+ * @tparam Entity
+ */
 abstract class AssetListTable[REF <: AffiliationID, Entity <: AssetList[REF]](tag: Tag, schemaName: Option[String], tableName: String)(implicit val idMapping: BaseColumnType[AssetListID], val refMapping: BaseColumnType[REF])
 extends BaseTable[Entity](tag, schemaName, tableName) {
   def this(tag: Tag, tableName: String)(implicit idMapping: BaseColumnType[AssetListID], refMapping: BaseColumnType[REF]) = this(tag, None, tableName)
@@ -147,15 +157,15 @@ object RawQuantityBase {
  * @param rawQuantity
  */
 case class AssetItem(
-                      id: AssetItemID,
-                      assetListID: AssetListID,
-                      parentID: Option[AssetItemID],
-                      locationID: Option[ItemID],
-                      typeID: TypeID,
-                      quantity: Int,
-                      flag: Int,
-                      singleton: Boolean,
-                      rawQuantity: Option[RawQuantityBase])
+  id: AssetItemID,
+  assetListID: AssetListID,
+  parentID: Option[AssetItemID],
+  locationID: Option[ItemID],
+  typeID: TypeID,
+  quantity: Int,
+  flag: Int,
+  singleton: Boolean,
+  rawQuantity: Option[RawQuantityBase])
 
 object AssetItem { implicit val jsonFormat = Json.format[AssetItem] }
 

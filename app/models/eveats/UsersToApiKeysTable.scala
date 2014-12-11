@@ -3,7 +3,7 @@ package models.eveats
 import models.core.TypesafeID.driver.simple._
 import scala.slick.model.ForeignKeyAction.Cascade
 
-class UsersToApiKeys(tag:Tag) extends Table[(UserID, ApiKeyID)](tag, "eveats_users_to_apikeys") {
+class UsersToApiKeysTable(tag:Tag) extends Table[(UserID, ApiKeyID)](tag, "eveats_users_to_apikeys") {
   def userID = column[UserID]("user_id")
   def apiKeyID = column[ApiKeyID]("apikey_id")
 
@@ -14,8 +14,8 @@ class UsersToApiKeys(tag:Tag) extends Table[(UserID, ApiKeyID)](tag, "eveats_use
   def * = (userID, apiKeyID)
 }
 
-object UsersToApiKeys {
-  val query = TableQuery[UsersToApiKeys]
+object UsersToApiKeysTable {
+  val query = TableQuery[UsersToApiKeysTable]
 
   type Row = (UserID, ApiKeyID)
 
