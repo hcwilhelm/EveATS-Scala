@@ -22,9 +22,9 @@ package object xmlparser {
   /**
    * XMLParserExceptions
    */
-  sealed trait XMLParserException extends RuntimeException
-  case class EveApiError(val code: Int, message: String) extends XMLParserException
-  case class InvalidXML(message: String) extends XMLParserException
+  sealed class XMLParserException(msg: String) extends RuntimeException(msg)
+  case class EveApiError(val code: Int, val msg: String) extends XMLParserException(msg)
+  case class InvalidXML(val msg: String) extends XMLParserException(msg)
 
   /**
    * EveApi xml QNames

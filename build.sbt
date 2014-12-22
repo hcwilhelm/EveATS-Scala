@@ -15,3 +15,7 @@ libraryDependencies ++= Seq(
   "com.fasterxml" % "aalto-xml" % "0.9.9",
   "org.mindrot" % "jbcrypt" % "0.3m"
 )
+
+PlayKeys.playWatchService := play.sbtplugin.run.PlayWatchService.sbt(pollInterval.value)
+
+scalacOptions ++= Seq("-feature")

@@ -26,8 +26,12 @@ trait Repositories { self: HasJdbcDriver with Identifiers with Tables =>
     def update(elem: Entity)(implicit s: Session): Option[Int] =
       elem.id map (id => query.filter(_.id === id).update(elem))
 
-    def insertOrUpdate(elem: Entity)(implicit s: Session): Option[ID] =
-      (query returning query.map(_.id)) insertOrUpdate(elem)
+    def insertOrUpdate(elem: Entity)(implicit s: Session): ID = {
+      elem.id match {
+        case None => insert(elem)
+        case Some(id) => update(elem); id
+      }
+    }
 
     def delete(id: ID)(implicit s: Session): Int =
       query.filter(_.id === id).delete
@@ -59,8 +63,15 @@ trait Repositories { self: HasJdbcDriver with Identifiers with Tables =>
     def update(elem: Entity)(implicit s: Session): Int =
       query.filter(_.id === elem.id).update(elem)
 
-    def insertOrUpdate(elem: Entity)(implicit s: Session): Option[ID] =
-      (query returning query.map(_.id)) insertOrUpdate(elem)
+    def insertOrUpdate(elem: Entity)(implicit s: Session): ID = {
+      if (exists(elem.id)) {
+        update(elem)
+        elem.id
+      }
+
+      else
+        insert(elem)
+    }
 
     def delete(id: ID)(implicit s: Session): Int =
       query.filter(_.id === id).delete

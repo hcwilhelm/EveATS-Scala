@@ -51,7 +51,8 @@ extends BaseTable[Entity](tag, schemaName, tableName) {
   def createdAt = column[DateTime]("created_at")
   def cachedUntil = column[DateTime]("cached_until")
 
-  def pk = primaryKey("id_affiliation_id_pk", (id, affiliationID))
+  def pk = primaryKey(tableName + "_id_affiliation_id_pk", (id, affiliationID))
+  def idIDX = index(tableName + "_id_idx", id, unique = true)
 }
 
 /**
@@ -193,8 +194,9 @@ extends BaseTable[AssetItem](tag, schemaName, tableName) {
   def singleton = column[Boolean]("singleton")
   def rawQuantity = column[Option[RawQuantityBase]]("raw_quantity")
 
-  def pk = primaryKey("id_asset_list_pk", (id, assetListID))
-  def assetList = foreignKey("asset_list_fk", assetListID, assetListQuery)(_.id, onUpdate = Cascade, onDelete = Cascade)
+  def pk = primaryKey(tableName + "_id_asset_list_pk", (id, assetListID))
+  def idIDX = index(tableName + "_id_idx", id, unique = true)
+  def assetList = foreignKey(tableName + "_asset_list_fk", assetListID, assetListQuery)(_.id, onUpdate = Cascade, onDelete = Cascade)
 
   def * = (
     id,

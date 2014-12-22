@@ -5,6 +5,8 @@ import models.core.TypesafeID.driver.simple._
 import org.joda.time.DateTime
 import play.api.libs.json.Json
 
+import scala.slick.lifted
+
 case class Location(
   id: AssetItemID,
   assetListID: AssetListID,
@@ -19,6 +21,8 @@ object Location { implicit val jsonFormat = Json.format[Location] }
 abstract class LocationTable(tag: Tag, tableName: String)
 extends IDTable[AssetItemID, Location](tag, tableName) {
 
+
+  override def id = column[AssetItemID]("asset_item_id")
   def assetListID = column[AssetListID]("asset_list_id")
   def itemName = column[String]("item_name")
   def x = column[Double]("x")
@@ -26,7 +30,7 @@ extends IDTable[AssetItemID, Location](tag, tableName) {
   def z = column[Double]("z")
   def cachedUntil = column[DateTime]("cached_until")
 
-  def pk = primaryKey("id_asset_list_id_pk", (id, assetListID))
+  def pk = primaryKey(tableName + "_id_asset_list_id_pk", (id, assetListID))
 
   override def * = (id, assetListID, itemName, x, y, z, cachedUntil) <> ((Location.apply _).tupled, Location.unapply)
 }

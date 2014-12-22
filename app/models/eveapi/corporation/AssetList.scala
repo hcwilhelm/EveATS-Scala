@@ -27,7 +27,7 @@ object CorporationAssetList { implicit val jsonFormat = Json.format[CorporationA
  */
 class CorporationAssetListTable(tag: Tag) extends AssetListTable[CorporationID, CorporationAssetList](tag, "eveats_corporation_asset_list") {
   def * = (id.?, affiliationID, createdAt, cachedUntil) <> ((CorporationAssetList.apply _).tupled, CorporationAssetList.unapply)
-  def affiliation = foreignKey("affiliation_fk", affiliationID, TableQuery[CorporationTable])(_.id, onUpdate = Cascade, onDelete = Cascade)
+  def affiliation = foreignKey("corporation_affiliation_fk", affiliationID, TableQuery[CorporationTable])(_.id, onUpdate = Cascade, onDelete = Cascade)
 }
 
 object CorporationAssetListTable extends AssetListRepository[CorporationID, CorporationAssetList, CorporationAssetListTable](TableQuery[CorporationAssetListTable])

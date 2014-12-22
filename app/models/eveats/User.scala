@@ -15,7 +15,13 @@ class UserTable(tag: Tag) extends OptionalIDTable[UserID, User](tag, "eveats_use
   def email = column[String]("email")
   def password = column[String]("password")
 
+  def emailIDX = index("email_idx", email, unique = true)
+
   override def * = (id.?, email, password) <> ((User.apply _).tupled, User.unapply)
 }
 
-object UserTable extends OptionalIDRepository[UserID, User, UserTable](TableQuery[UserTable])
+object UserTable extends OptionalIDRepository[UserID, User, UserTable](TableQuery[UserTable]) {
+
+  def findByEmail(email: String)(implicit s: Session): Option[User] =
+    query.filter(_.email === email).firstOption
+}
