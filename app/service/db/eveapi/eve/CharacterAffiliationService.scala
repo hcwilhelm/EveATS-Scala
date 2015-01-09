@@ -62,5 +62,27 @@ object CharacterAffiliationService {
     }
   }
 
-  def insertAffiliation(apiKeyID: ApiKeyID, chars: Set[Character], corps: Set[Corporation]) = ???
+  def insertAffiliation(id: ApiKeyID, chars: Set[Character], corps: Set[Corporation]): Future[Unit] = Future {
+    DB.withSession { implicit session =>
+      corps foreach CorporationTable.insertOrUpdate
+      chars foreach CharacterTable.insertOrUpdate
+
+      CharactersToApiKeysTable.deleteByApiKey(id)
+      chars foreach (char => CharactersToApiKeysTable.insert(char.id -> id))
+    }
+  }
+
+  def findCharacters(id: ApiKeyID): Future[Set[Character]] = Future {
+    DB.withSession { implicit session =>
+      CharactersToApiKeysTable.findCharacters(id).toSet
+    }
+  }
+
+  def findCorporations(id: ApiKeyID): Future[Set[Corporation]] = Future {
+    DB.withSession { implicit session =>
+      CharactersToApiKeysTable.findCharacters(id).map { char =>
+        CorporationTable.find(char.corporationID)
+      }.flatten.toSet
+    }
+  }
 }

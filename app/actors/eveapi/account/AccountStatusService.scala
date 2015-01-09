@@ -34,8 +34,7 @@ object AccountStatusService {
  * AccountStatusService Implementation
  */
 private class AccountStatusServiceImpl extends AccountStatusService {
-  private[this] val actor = TypedActor.context.actorOf(Props[AccountStatusActor] ,"AccountStatusActor")
-
+  val actor = TypedActor.context.actorOf(Props[AccountStatusActor] ,"AccountStatusActor")
   implicit val timeout = Timeout(10.seconds)
 
   override def get(apiKeyID: ApiKeyID): Future[AccountStatus] = (actor ? apiKeyID).mapTo[AccountStatus]
@@ -45,7 +44,6 @@ private class AccountStatusServiceImpl extends AccountStatusService {
  * AccountStatus Actor
  */
 private class AccountStatusActor extends Actor {
-
   val listeners = mutable.Map[ApiKeyID, Set[ActorRef]]()
   val runningUpdates = mutable.Set[ApiKeyID]()
 
@@ -55,7 +53,7 @@ private class AccountStatusActor extends Actor {
   override def receive = {
     case apiKeyID: ApiKeyID =>
       listeners(apiKeyID) = (listeners getOrElse(apiKeyID, Set.empty[ActorRef])) + sender
-      runningUpdates.find(_ == apiKeyID).fold(findAccountStatus(apiKeyID))(_ => ())
+      runningUpdates.find(_ == apiKeyID).fold(find(apiKeyID))(_ => ())
 
     case accountStatus: AccountStatus =>
       reply(accountStatus.id, accountStatus)
@@ -64,40 +62,43 @@ private class AccountStatusActor extends Actor {
       reply(apiKeyID, Status.Failure(ex))
   }
 
-  private def findAccountStatus(id: ApiKeyID): Unit =  {
+  private def find(id: ApiKeyID): Unit =  {
     runningUpdates += id
 
     AccountStatusDBService.find(id).map {
       case Some(accountStatus) =>
-        if (accountStatus.cachedUntil isBeforeNow)
+        if (accountStatus.cachedUntil isAfterNow)
           self ! accountStatus
         else
-          insertOrUpdate(id) recover {
+          update(id) recover {
             case ex: Exception => (id, ex)
           } pipeTo self
 
       case None =>
-        insertOrUpdate(id) recover {
+        update(id) recover {
           case ex: Exception => (id, ex)
         } pipeTo self
     }
   }
 
-  private def insertOrUpdate(apiKeyID: ApiKeyID): Future[AccountStatus] =
-    ApiKeyDBService.find(apiKeyID) flatMap {
+  private def update(id: ApiKeyID): Future[AccountStatus] = {
+    println("Updating AccountStatus for ID : " + id)
+
+    ApiKeyDBService.find(id) flatMap {
       case Some(apiKey) =>
         val request = requestHolder.withQueryString("keyID" -> apiKey.id, "vCode" -> apiKey.vCode)
 
         request.get() flatMap { response =>
-          AccountStatusParser(response.body, apiKeyID) match {
+          AccountStatusParser(response.body, id) match {
             case Success(accountStatus) => AccountStatusDBService.insertOrUpdate(accountStatus) map (_ => accountStatus)
             case Failure(ex) => Future.failed(ex)
           }
         }
 
       case None =>
-        Future.failed(new Exception("ApiKey not found in DB"))
+        Future.failed(ApiKeyNotFound("ApiKey not found in DB"))
     }
+  }
 
   private def reply(id: ApiKeyID, msg: Any) = {
     listeners(id) map (_ ! msg)

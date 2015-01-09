@@ -1,62 +1,35 @@
 package controllers
 
-import actors.eveapi.account.AccountStatusService
-import models.eveats.{ApiKeyID, ApiKey, UserID, User}
-import play.api._
+import actors.eveapi.account.{ApiKeyInfoService, AccountStatusService}
+import models.eveats.{ApiKey, ApiKeyID}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
-import service.db.eveats.{UsersToApiKeysService, ApiKeyService, UserService}
-import akka.actor._
-import play.api.libs.concurrent.Akka
-import play.api.Play.current
-import xmlparser.EveApiError
+import service.db.eveats.ApiKeyService
+import xmlparser.{EveApiError, InvalidXML}
 
 import scala.util.{Failure, Success}
 
 object Application extends Controller {
 
-//  sealed trait State
-//  case object Start extends State
-//  case object End extends State
-//
-//  final class Data
-//
-//  class TestActor extends FSM[State, Data] {
-//
-//
-//
-//    startWith(Start, new Data())
-//
-//    when(Start) {
-//      case Event(ApiKeyID(id), Uninitialized) =>
-//        println("Start State reached")
-//        goto(End)
-//    }
-//
-//    when(End) {
-//      case Event(_, _) =>
-//        println("End state reached")
-//        stay()
-//    }
-//
-//    onTransition {
-//      case Start -> End => println("Transitioning to End state")
-//    }
-//
-//    initialize()
-//
-//    override def preStart = {
-//      context.self ! ApiKeyID(2)
-//    }
-//  }
-
-
-
   def index = Action {
 
     AccountStatusService().get(ApiKeyID(1963281)).onComplete {
       case Success(s) => println(s)
-      case Failure(EveApiError(code, msg)) => println("ErrorCode : " + code + " " + msg)
+      case Failure(ex: EveApiError) => println(ex)
+      case Failure(ex: InvalidXML) => println(ex)
+      case Failure(ex: actors.eveapi.account.ApiKeyNotFound) =>
+        ApiKeyService.insert(ApiKey(ApiKeyID(1963281), "oMJ92FB2hFQgFaMG8wprX9B18lpdMvAazo7S7dX3fsc29zPBJn2PUTKmKT3052Gf"))
+        .map(_ => println(ex))
+      case Failure(ex) => println(ex)
+    }
+
+    ApiKeyInfoService().getInfo(ApiKeyID(1963281)).onComplete {
+      case Success(s) => println(s)
+      case Failure(ex) => println(ex)
+    }
+
+    ApiKeyInfoService().getChars(ApiKeyID(1963281)).onComplete {
+      case Success(s) => println(s)
       case Failure(ex) => println(ex)
     }
 
