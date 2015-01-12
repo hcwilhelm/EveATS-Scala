@@ -34,8 +34,11 @@ private class ApiKeyInfoServiceImpl extends ApiKeyInfoService {
   val actor = TypedActor.context.actorOf(Props[ApiKeyInfoActor] ,"ApiKeyInfoActor")
   implicit val timeout = Timeout(10.seconds)
 
-  override def getInfo(id: ApiKeyID): Future[ApiKeyInfo] = (actor ? id).mapTo[ApiKeyInfo]
-  override def getChars(id: ApiKeyID): Future[Set[Character]] = (actor ? id) flatMap { _ =>
+  override def getInfo(id: ApiKeyID): Future[ApiKeyInfo] =
+    (actor ? id).mapTo[ApiKeyInfo]
+
+  override def getChars(id: ApiKeyID): Future[Set[Character]] =
+    (actor ? id) flatMap { _ =>
     CharacterAffiliationDBService.findCharacters(id)
   }
 }
@@ -46,7 +49,7 @@ private class ApiKeyInfoActor extends Actor {
   val runningUpdates = mutable.Set[ApiKeyID]()
 
   val timeout = 10000
-  val requestHolder = WS.url("https://api.eveonline.com/Account/ApiKeyInfo.xml.aspx").withRequestTimeout(timeout)
+  lazy val requestHolder = WS.url("https://api.eveonline.com/Account/ApiKeyInfo.xml.aspx").withRequestTimeout(timeout)
 
   override def receive = {
     case id: ApiKeyID =>
@@ -88,7 +91,7 @@ private class ApiKeyInfoActor extends Actor {
           ApiKeyInfoParser(response.body, id) match {
             case Success((apiKeyInfo, chars, corps)) =>
               for {
-                _ <- CharacterAffiliationDBService.insertAffiliation(apiKey.id, chars, corps)
+                _ <- CharacterAffiliationDBService.updateAffiliation(apiKey.id, chars, corps)
                 _ <- ApiKeyInfoDBService.insertOrUpdate(apiKeyInfo)
               } yield apiKeyInfo
 

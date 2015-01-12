@@ -4,6 +4,8 @@ import models.core.TypesafeID._
 import models.core.TypesafeID.driver.simple._
 import play.api.libs.json.Json
 
+import scala.slick.direct.AnnotationMapper.column
+
 case class ApiKeyID(untypedID: Long) extends AnyVal with TypedID
 object ApiKeyID extends TypedIDCompanion[ApiKeyID]
 

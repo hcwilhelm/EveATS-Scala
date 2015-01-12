@@ -62,7 +62,7 @@ object CharacterAffiliationService {
     }
   }
 
-  def insertAffiliation(id: ApiKeyID, chars: Set[Character], corps: Set[Corporation]): Future[Unit] = Future {
+  def updateAffiliation(id: ApiKeyID, chars: Set[Character], corps: Set[Corporation]): Future[Unit] = Future {
     DB.withSession { implicit session =>
       corps foreach CorporationTable.insertOrUpdate
       chars foreach CharacterTable.insertOrUpdate
