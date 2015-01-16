@@ -4,7 +4,7 @@ import models.eveapi.eve._
 import models.eveats.ApiKeyID
 import play.api.Play.current
 import play.api.db.slick.DB
-import service.db.dbOperationsExecutionContext
+import service.db.executionContext
 
 import scala.concurrent._
 

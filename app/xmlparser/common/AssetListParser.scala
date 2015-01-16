@@ -116,7 +116,12 @@ class AssetListParser(val reader: XMLEventReader) {
             val typeID = TypeID(element.getAttributeByName(QNames.TYPE_ID).getValue.toLong)
             val quantity = element.getAttributeByName(QNames.QUANTITY).getValue.toInt
             val flag = element.getAttributeByName(QNames.FLAG).getValue.toInt
-            val singleton = element.getAttributeByName(QNames.SINGLETON).getValue.toBoolean
+
+            val singleton = element.getAttributeByName(QNames.SINGLETON).getValue match {
+              case "1" => true
+              case "0" => false
+            }
+
             val rawQuantity = Try {RawQuantityBase(element.getAttributeByName(QNames.RAW_QUANTITY).getValue.toInt)}.toOption
 
             val parentID = itemStack.headOption
@@ -150,7 +155,7 @@ class AssetListParser(val reader: XMLEventReader) {
            * Closing RowSet pop element form stack
            */
           if (element.getName == QNames.ROWSET) {
-            itemStack = itemStack.tail
+            itemStack = if (itemStack.nonEmpty) itemStack.tail else itemStack
           }
 
         case _ => Unit

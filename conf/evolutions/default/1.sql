@@ -9,7 +9,6 @@ create table "eveats_apikeys" ("id" BIGINT NOT NULL PRIMARY KEY,"vcode" VARCHAR(
 create table "eveats_character" ("id" BIGINT NOT NULL PRIMARY KEY,"name" VARCHAR(254) NOT NULL,"corporation_id" BIGINT NOT NULL,"cached_until" TIMESTAMP NOT NULL);
 create table "eveats_character_asset_item" ("id" BIGINT NOT NULL,"asset_list_id" BIGINT NOT NULL,"parent_id" BIGINT,"location_id" BIGINT,"type_id" BIGINT NOT NULL,"quantity" INTEGER NOT NULL,"flag" INTEGER NOT NULL,"singleton" BOOLEAN NOT NULL,"raw_quantity" INTEGER);
 alter table "eveats_character_asset_item" add constraint "eveats_character_asset_item_id_asset_list_pk" primary key("id","asset_list_id");
-create unique index "eveats_character_asset_item_id_idx" on "eveats_character_asset_item" ("id");
 create table "eveats_character_asset_list" ("id" BIGSERIAL NOT NULL,"affiliation_id" BIGINT NOT NULL,"created_at" TIMESTAMP NOT NULL,"cached_until" TIMESTAMP NOT NULL);
 alter table "eveats_character_asset_list" add constraint "eveats_character_asset_list_id_affiliation_id_pk" primary key("id","affiliation_id");
 create unique index "eveats_character_asset_list_id_idx" on "eveats_character_asset_list" ("id");
@@ -20,7 +19,6 @@ alter table "eveats_characters_to_apikeys" add constraint "character_apikey_pk" 
 create table "eveats_corporation" ("id" BIGINT NOT NULL PRIMARY KEY,"name" VARCHAR(254) NOT NULL);
 create table "eveats_corporation_asset_item" ("id" BIGINT NOT NULL,"asset_list_id" BIGINT NOT NULL,"parent_id" BIGINT,"location_id" BIGINT,"type_id" BIGINT NOT NULL,"quantity" INTEGER NOT NULL,"flag" INTEGER NOT NULL,"singleton" BOOLEAN NOT NULL,"raw_quantity" INTEGER);
 alter table "eveats_corporation_asset_item" add constraint "eveats_corporation_asset_item_id_asset_list_pk" primary key("id","asset_list_id");
-create unique index "eveats_corporation_asset_item_id_idx" on "eveats_corporation_asset_item" ("id");
 create table "eveats_corporation_asset_list" ("id" BIGSERIAL NOT NULL,"affiliation_id" BIGINT NOT NULL,"created_at" TIMESTAMP NOT NULL,"cached_until" TIMESTAMP NOT NULL);
 alter table "eveats_corporation_asset_list" add constraint "eveats_corporation_asset_list_id_affiliation_id_pk" primary key("id","affiliation_id");
 create unique index "eveats_corporation_asset_list_id_idx" on "eveats_corporation_asset_list" ("id");

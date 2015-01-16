@@ -3,7 +3,7 @@ package service.db.eveats
 import models.eveats._
 import play.api.db.slick.DB
 import play.api.Play.current
-import service.db.dbOperationsExecutionContext
+import service.db.executionContext
 
 import scala.concurrent._
 

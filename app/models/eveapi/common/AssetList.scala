@@ -195,7 +195,6 @@ extends BaseTable[AssetItem](tag, schemaName, tableName) {
   def rawQuantity = column[Option[RawQuantityBase]]("raw_quantity")
 
   def pk = primaryKey(tableName + "_id_asset_list_pk", (id, assetListID))
-  def idIDX = index(tableName + "_id_idx", id, unique = true)
   def assetList = foreignKey(tableName + "_asset_list_fk", assetListID, assetListQuery)(_.id, onUpdate = Cascade, onDelete = Cascade)
 
   def * = (
