@@ -24,6 +24,8 @@ alter table "eveats_corporation_asset_list" add constraint "eveats_corporation_a
 create unique index "eveats_corporation_asset_list_id_idx" on "eveats_corporation_asset_list" ("id");
 create table "eveats_corporation_location" ("asset_item_id" BIGINT NOT NULL,"asset_list_id" BIGINT NOT NULL,"item_name" VARCHAR(254) NOT NULL,"x" DOUBLE PRECISION NOT NULL,"y" DOUBLE PRECISION NOT NULL,"z" DOUBLE PRECISION NOT NULL,"cached_until" TIMESTAMP NOT NULL);
 alter table "eveats_corporation_location" add constraint "eveats_corporation_location_id_asset_list_id_pk" primary key("asset_item_id","asset_list_id");
+create table "eveats_emdr_orders" ("id" BIGSERIAL NOT NULL PRIMARY KEY,"generated_at" TIMESTAMP NOT NULL,"region_id" BIGINT,"type_id" BIGINT NOT NULL,"price" DECIMAL(21,2) NOT NULL,"vol_remaining" BIGINT NOT NULL,"range" INTEGER NOT NULL,"order_id" BIGINT NOT NULL,"vol_entered" BIGINT NOT NULL,"min_volume" BIGINT NOT NULL,"bid" BOOLEAN NOT NULL,"issue_date" TIMESTAMP NOT NULL,"duration" INTEGER NOT NULL,"station_id" BIGINT NOT NULL,"solar_system_id" BIGINT);
+create unique index "order_id_idx" on "eveats_emdr_orders" ("order_id");
 create table "eveats_users" ("id" BIGSERIAL NOT NULL PRIMARY KEY,"email" VARCHAR(254) NOT NULL,"password" VARCHAR(254) NOT NULL);
 create unique index "email_idx" on "eveats_users" ("email");
 create table "eveats_users_to_apikeys" ("user_id" BIGINT NOT NULL,"apikey_id" BIGINT NOT NULL);
@@ -33,14 +35,12 @@ alter table "eveats_apikey_info" add constraint "apikey_fk" foreign key("id") re
 alter table "eveats_character" add constraint "corporation_fk" foreign key("corporation_id") references "eveats_corporation"("id") on update NO ACTION on delete NO ACTION;
 alter table "eveats_character_asset_item" add constraint "eveats_character_asset_item_asset_list_fk" foreign key("asset_list_id") references "eveats_character_asset_list"("id") on update CASCADE on delete CASCADE;
 alter table "eveats_character_asset_list" add constraint "character_affiliation_fk" foreign key("affiliation_id") references "eveats_character"("id") on update CASCADE on delete CASCADE;
-alter table "eveats_character_location" add constraint "asset_item_fk" foreign key("asset_item_id") references "eveats_character_asset_item"("id") on update CASCADE on delete CASCADE;
-alter table "eveats_character_location" add constraint "asset_list_fk" foreign key("asset_list_id") references "eveats_character_asset_list"("id") on update CASCADE on delete CASCADE;
+alter table "eveats_character_location" add constraint "asset_item_fk" foreign key("asset_item_id","asset_list_id") references "eveats_character_asset_item"("id","asset_list_id") on update CASCADE on delete CASCADE;
 alter table "eveats_characters_to_apikeys" add constraint "apikey_fk" foreign key("apikey_id") references "eveats_apikeys"("id") on update CASCADE on delete CASCADE;
 alter table "eveats_characters_to_apikeys" add constraint "character_fk" foreign key("character_id") references "eveats_character"("id") on update CASCADE on delete CASCADE;
 alter table "eveats_corporation_asset_item" add constraint "eveats_corporation_asset_item_asset_list_fk" foreign key("asset_list_id") references "eveats_corporation_asset_list"("id") on update CASCADE on delete CASCADE;
 alter table "eveats_corporation_asset_list" add constraint "corporation_affiliation_fk" foreign key("affiliation_id") references "eveats_corporation"("id") on update CASCADE on delete CASCADE;
-alter table "eveats_corporation_location" add constraint "asset_item_fk" foreign key("asset_item_id") references "eveats_corporation_asset_item"("id") on update CASCADE on delete CASCADE;
-alter table "eveats_corporation_location" add constraint "asset_list_fk" foreign key("asset_list_id") references "eveats_corporation_asset_list"("id") on update CASCADE on delete CASCADE;
+alter table "eveats_corporation_location" add constraint "asset_item_fk" foreign key("asset_item_id","asset_list_id") references "eveats_corporation_asset_item"("id","asset_list_id") on update CASCADE on delete CASCADE;
 alter table "eveats_users_to_apikeys" add constraint "apikey_fk" foreign key("apikey_id") references "eveats_apikeys"("id") on update CASCADE on delete CASCADE;
 alter table "eveats_users_to_apikeys" add constraint "user_fk" foreign key("user_id") references "eveats_users"("id") on update CASCADE on delete CASCADE;
 
@@ -49,13 +49,11 @@ alter table "eveats_users_to_apikeys" add constraint "user_fk" foreign key("user
 alter table "eveats_users_to_apikeys" drop constraint "apikey_fk";
 alter table "eveats_users_to_apikeys" drop constraint "user_fk";
 alter table "eveats_corporation_location" drop constraint "asset_item_fk";
-alter table "eveats_corporation_location" drop constraint "asset_list_fk";
 alter table "eveats_corporation_asset_list" drop constraint "corporation_affiliation_fk";
 alter table "eveats_corporation_asset_item" drop constraint "eveats_corporation_asset_item_asset_list_fk";
 alter table "eveats_characters_to_apikeys" drop constraint "apikey_fk";
 alter table "eveats_characters_to_apikeys" drop constraint "character_fk";
 alter table "eveats_character_location" drop constraint "asset_item_fk";
-alter table "eveats_character_location" drop constraint "asset_list_fk";
 alter table "eveats_character_asset_list" drop constraint "character_affiliation_fk";
 alter table "eveats_character_asset_item" drop constraint "eveats_character_asset_item_asset_list_fk";
 alter table "eveats_character" drop constraint "corporation_fk";
@@ -64,6 +62,7 @@ alter table "eveats_account_status" drop constraint "apikey_fk";
 alter table "eveats_users_to_apikeys" drop constraint "user_apikey_pk";
 drop table "eveats_users_to_apikeys";
 drop table "eveats_users";
+drop table "eveats_emdr_orders";
 alter table "eveats_corporation_location" drop constraint "eveats_corporation_location_id_asset_list_id_pk";
 drop table "eveats_corporation_location";
 alter table "eveats_corporation_asset_list" drop constraint "eveats_corporation_asset_list_id_affiliation_id_pk";

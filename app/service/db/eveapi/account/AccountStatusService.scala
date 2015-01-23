@@ -32,7 +32,7 @@ object AccountStatusService {
     }
   }
   
-  def insertOrUpdate(entity: AccountStatus): Future[ApiKeyID] = Future {
+  def insertOrUpdate(entity: AccountStatus): Future[Option[ApiKeyID]] = Future {
     DB.withSession { implicit session => 
       AccountStatusTable.insertOrUpdate(entity)
     }

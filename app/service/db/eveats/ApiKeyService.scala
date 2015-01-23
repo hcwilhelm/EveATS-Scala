@@ -13,16 +13,22 @@ import scala.concurrent._
  */
 object ApiKeyService {
 
-  def find(apiKeyID: ApiKeyID): Future[Option[ApiKey]] = Future {
+  def find(key: ApiKeyID): Future[Option[ApiKey]] = Future {
     DB.withSession { implicit session =>
-      ApiKeyTable.find(apiKeyID)
+      ApiKeyTable.find(key)
     }
   }
 
-  def insert(apiKey: ApiKey): Future[ApiKeyID] = Future {
+  def insert(key: ApiKey): Future[ApiKeyID] = Future {
       DB.withSession { implicit session =>
-        ApiKeyTable.insert(apiKey)
+        ApiKeyTable.insert(key)
       }
+  }
+  
+  def insertOrUpdate(key: ApiKey) = Future {
+    DB.withSession { implicit session =>
+      ApiKeyTable.insertOrUpdate(key)
+    }
   }
 
   def update(apiKey: ApiKey): Future[Int] = Future {
@@ -31,9 +37,9 @@ object ApiKeyService {
     }
   }
 
-  def delete(apiKeyID: ApiKeyID): Future[Int] = Future {
+  def delete(key: ApiKeyID): Future[Int] = Future {
     DB.withSession { implicit session =>
-      ApiKeyTable.delete(apiKeyID)
+      ApiKeyTable.delete(key)
     }
   }
 }

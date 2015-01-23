@@ -1,6 +1,7 @@
 package service.db.eveapi.account
 
-import models.eveapi.account.{ApiKeyInfo, ApiKeyInfoTable}
+import models.eveapi.account.{CharactersToApiKeysTable, ApiKeyInfo, ApiKeyInfoTable}
+import models.eveapi.eve.Character
 import models.eveats.ApiKeyID
 import play.api.Play.current
 import play.api.db.slick.DB
@@ -24,7 +25,7 @@ object ApiKeyInfoService {
     }
   }
 
-  def upadte(entity: ApiKeyInfo) = Future {
+  def update(entity: ApiKeyInfo) = Future {
     DB.withSession { implicit session =>
       ApiKeyInfoTable.update(entity)
     }
@@ -39,6 +40,19 @@ object ApiKeyInfoService {
   def delete(id: ApiKeyID): Future[Int] = Future {
     DB.withSession { implicit session =>
       ApiKeyInfoTable.delete(id)
+    }
+  }
+
+  def updateCharacters(id: ApiKeyID, chars: List[Character]): Future[Option[Int]] = Future {
+    DB.withSession { implicit session =>
+      CharactersToApiKeysTable.deleteByApiKey(id)
+      CharactersToApiKeysTable.insert(chars.map(_.id -> id))
+    }
+  }
+
+  def findCharacters(id: ApiKeyID): Future[Seq[Character]] = Future {
+    DB.withSession { implicit session =>
+      CharactersToApiKeysTable.findCharacters(id)
     }
   }
 }

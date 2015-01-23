@@ -1,6 +1,6 @@
 package xmlparser.account
 
-import models.eveapi.account.{Account, ApiKeyInfo}
+import models.eveapi.account.{AccountType, ApiKeyInfo}
 import models.eveapi.eve.{Character, CharacterID, Corporation, CorporationID}
 import models.eveats.ApiKeyID
 import org.joda.time.{DateTime, DateTimeZone}

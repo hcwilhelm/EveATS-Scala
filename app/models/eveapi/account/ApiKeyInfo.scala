@@ -12,16 +12,16 @@ import scala.slick.model.ForeignKeyAction.Cascade
  * KeyType
  */
 sealed trait KeyType
-case object Account extends KeyType
-case object Character extends KeyType
-case object Corporation extends KeyType
+case object AccountType extends KeyType
+case object CharacterType extends KeyType
+case object CorporationType extends KeyType
 
 object KeyType {
 
   def apply(value: String) = value match {
-    case "Account"      => Account
-    case "Character"    => Character
-    case "Corporation"  => Corporation
+    case "Account"      => AccountType
+    case "Character"    => CharacterType
+    case "Corporation"  => CorporationType
   }
 
   def unapply(value: KeyType) = value.toString

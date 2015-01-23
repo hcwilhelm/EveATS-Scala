@@ -1,5 +1,6 @@
 package service.db.eveapi.eve
 
+import models.eveapi.account.CharactersToApiKeysTable
 import models.eveapi.eve._
 import models.eveats.ApiKeyID
 import play.api.Play.current
@@ -32,9 +33,15 @@ object CharacterAffiliationService {
     }
   }
 
-  def insertOrUpdateCharacter(entity: Character): Future[CharacterID] = Future {
+  def insertOrUpdateCharacter(entity: Character): Future[Option[CharacterID]] = Future {
     DB.withSession { implicit session =>
       CharacterTable.insertOrUpdate(entity)
+    }
+  }
+
+  def insertOrUpdateCharacter(entity: Character*): Future[Seq[Option[CharacterID]]] = Future {
+    DB.withSession { implicit session =>
+      CharacterTable.insertOrUpdate(entity: _*)
     }
   }
 
@@ -56,19 +63,15 @@ object CharacterAffiliationService {
     }
   }
 
-  def insertOrUpdateCorporation(entity: Corporation): Future[CorporationID] = Future {
+  def insertOrUpdateCorporation(entity: Corporation): Future[Option[CorporationID]] = Future {
     DB.withSession { implicit session =>
       CorporationTable.insertOrUpdate(entity)
     }
   }
 
-  def updateAffiliation(id: ApiKeyID, chars: Set[Character], corps: Set[Corporation]): Future[Unit] = Future {
+  def insertOrUpdateCorporation(entity: Corporation*): Future[Seq[Option[CorporationID]]] = Future {
     DB.withSession { implicit session =>
-      corps foreach CorporationTable.insertOrUpdate
-      chars foreach CharacterTable.insertOrUpdate
-
-      CharactersToApiKeysTable.deleteByApiKey(id)
-      chars foreach (char => CharactersToApiKeysTable.insert(char.id -> id))
+      CorporationTable.insertOrUpdate(entity: _*)
     }
   }
 

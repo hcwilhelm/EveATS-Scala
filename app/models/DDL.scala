@@ -1,10 +1,11 @@
 package models
 
 import models.core.TypesafeID.driver.simple._
-import models.eveapi.account.{ApiKeyInfoTable, AccountStatusTable}
+import models.emdr.OrderTable
+import models.eveapi.account.{CharactersToApiKeysTable, ApiKeyInfoTable, AccountStatusTable}
 import models.eveapi.character.{CharacterLocationTable, CharacterAssetItemTable, CharacterAssetListTable}
 import models.eveapi.corporation.{CorporationLocationTable, CorporationAssetListTable, CorporationAssetItemTable}
-import models.eveapi.eve.{CharactersToApiKeysTable, CorporationTable, CharacterTable}
+import models.eveapi.eve.{CorporationTable, CharacterTable}
 import models.eveats.{UsersToApiKeysTable, UserTable, ApiKeyTable}
 
 /**
@@ -31,4 +32,6 @@ object DDL {
   val characterAssetListTable = TableQuery[CharacterAssetListTable]
   val characterAssetItemTable = TableQuery[CharacterAssetItemTable]
   val characterLocationTable = TableQuery[CharacterLocationTable]
+
+  val orderTable = TableQuery[OrderTable]
 }

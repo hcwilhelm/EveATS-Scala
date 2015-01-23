@@ -1,23 +1,19 @@
 package controllers
 
-import actors.eveapi.account.{ApiKeyInfoService, AccountStatusService}
-import actors.eveapi.character.{Sync, AssetListSyncActor}
-import akka.util.Timeout
-import models.eveapi.eve.{CorporationID, CharacterID, Character}
+import actors.emdr.{EMDRService, EmdrListener}
+import models.emdr.{OrderTable, Order}
+import models.emdr.json.Message
+import models.eveapi.eve.{Character, CharacterID, CorporationID}
 import models.eveats.{ApiKey, ApiKeyID}
+import models.evedump.{MapDenormalize, MapDenormalizeTable, TypeID}
 import org.joda.time.DateTime
-import play.api.libs.concurrent.Execution.Implicits._
+import play.api.libs.json.Json
 import play.api.mvc._
-import service.db.eveats.ApiKeyService
-import xmlparser.{EveApiError, InvalidXML}
-import scala.concurrent.Future
-import scala.concurrent.duration._
-import play.api.libs.concurrent.Akka
+import play.api.db.slick.DB
 import play.api.Play.current
+import models.core.TypesafeID.driver.simple._
 import scala.language.postfixOps
-import akka.pattern._
-
-import scala.util.{Random, Failure, Success}
+import scala.slick.lifted
 
 object Application extends Controller {
 
@@ -26,51 +22,25 @@ object Application extends Controller {
     val apiKey = ApiKey(ApiKeyID(1963281), "oMJ92FB2hFQgFaMG8wprX9B18lpdMvAazo7S7dX3fsc29zPBJn2PUTKmKT3052Gf")
     val char = Character(CharacterID(220728847), "NP Complete", CorporationID(98341385), DateTime.now())
 
-    implicit val timeout = Timeout(10.seconds)
+    DB.withSession { implicit session =>
+      val q = for {
+        (id, rows) <- OrderTable.query.filter(_.typeID === TypeID(34)).filter(_.bid === false).sortBy(_.price.asc).take(120).groupBy(_.typeID)
+      } yield (id, rows.map(_.price).avg)
 
-    (AssetListSyncActor() ? Sync(apiKey, char)).mapTo[Unit] onComplete {
-      case Success(_) => println("Done !")
-      case Failure(ex) => ex.printStackTrace()
+      val q2: lifted.Query[OrderTable, OrderTable#TableElementType, Seq] = OrderTable.query.filter(_.typeID === TypeID(34)).filter(_.bid === false)
+
+      val q3: lifted.Query[(OrderTable, MapDenormalizeTable), (Order, MapDenormalize), Seq] = for {
+        order <- OrderTable.query if (order.typeID === TypeID(34)) && (order.bid === false)
+        location <- MapDenormalizeTable.query if location.id === order.solarSystemID && location.itemName === "Jita"
+      } yield (order, location)
+
+      println(q2.run)
+      println(q.run)
+      q3.sortBy(_._1.price).map {
+        case (order, location) => (order.price, order.volEntered, location.itemName)
+      }.run map println
     }
 
-    //ApiKeyInfoService().getChars(apiKey.id) onSuccess { case l => println(l) }
-
-
-//    AccountStatusService().get(ApiKeyID(1963281)).onComplete {
-//      case Success(s) => println(s)
-//      case Failure(ex: EveApiError) => println(ex)
-//      case Failure(ex: InvalidXML) => println(ex)
-//      case Failure(ex: actors.eveapi.account.ApiKeyNotFound) =>
-//        ApiKeyService.insert(ApiKey(ApiKeyID(1963281), "oMJ92FB2hFQgFaMG8wprX9B18lpdMvAazo7S7dX3fsc29zPBJn2PUTKmKT3052Gf"))
-//        .map(_ => println(ex))
-//      case Failure(ex) => println(ex)
-//    }
-//
-//    ApiKeyInfoService().getInfo(ApiKeyID(1963281)).onComplete {
-//      case Success(s) => println(s)
-//      case Failure(ex) => println(ex)
-//    }
-//
-//    ApiKeyInfoService().getChars(ApiKeyID(1963281)).onComplete {
-//      case Success(s) => println(s)
-//      case Failure(ex) => println(ex)
-//    }
-
-//    val userID = UserService.insert(User(None, "hcwilhelm", "foo"))
-//    val keyID_1 = ApiKeyService.insert(ApiKey(ApiKeyID(1), "#1"))
-//    val keyID_2 = ApiKeyService.insert(ApiKey(ApiKeyID(2), "#2"))
-//
-//    for {
-//      userID <- userID
-//      keyID_1 <- keyID_1
-//      keyID_2 <- keyID_2
-//
-//      _ <- UsersToApiKeysService.insert(userID -> keyID_1)
-//      _ <- UsersToApiKeysService.insert(userID -> keyID_2)
-//    }(println("Insert Done"))
-
-
-//    val testActor = Akka.system.actorOf(Props[TestActor], name = "TestActor")
 
 
     Ok(views.html.index("Your new application is ready."))

@@ -1,6 +1,6 @@
 package xmlparser.account
 
-import models.eveapi.account.{Account, ApiKeyInfo}
+import models.eveapi.account.{AccountType, ApiKeyInfo}
 import models.eveapi.eve.{Character, CharacterID, Corporation, CorporationID}
 import models.eveats.ApiKeyID
 import org.joda.time.{DateTime, DateTimeZone}
@@ -44,7 +44,7 @@ class ApiKeyInfoParserSpec extends Specification {
       val apiKeyID = ApiKeyID(1)
       val cachedUntil = new DateTime(2014, 11, 8, 11, 19, 23, DateTimeZone.UTC)
       
-      val keyInfo = ApiKeyInfo(apiKeyID, 268435455, Account, None, cachedUntil)
+      val keyInfo = ApiKeyInfo(apiKeyID, 268435455, AccountType, None, cachedUntil)
       
       val characters = Set(
         Character(CharacterID(220728847), "NP Complete", CorporationID(98341385), cachedUntil),

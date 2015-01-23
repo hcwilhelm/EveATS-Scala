@@ -12,8 +12,7 @@ import scala.slick.model.ForeignKeyAction.Cascade
  * @param tag
  */
 class CorporationLocationTable(tag: Tag) extends LocationTable(tag, "eveats_corporation_location") {
-  def assetItem = foreignKey("asset_item_fk", id, TableQuery[CorporationAssetItemTable])(_.id, onUpdate = Cascade, onDelete = Cascade)
-  def assetList = foreignKey("asset_list_fk", assetListID, TableQuery[CorporationAssetListTable])(_.id, onUpdate = Cascade, onDelete = Cascade)
+  def assetItem = foreignKey("asset_item_fk", (id, assetListID), TableQuery[CorporationAssetItemTable])(t => (t.id, t.assetListID), onUpdate = Cascade, onDelete = Cascade)
 }
 
 object CorporationLocationTable extends IDRepository[AssetItemID, Location, CorporationLocationTable](TableQuery[CorporationLocationTable])

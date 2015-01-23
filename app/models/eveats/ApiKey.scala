@@ -10,7 +10,6 @@ case class ApiKeyID(untypedID: Long) extends AnyVal with TypedID
 object ApiKeyID extends TypedIDCompanion[ApiKeyID]
 
 case class ApiKey(id: ApiKeyID, vCode: String) extends WithID[ApiKeyID]
-
 object ApiKey { implicit val jsonFormat = Json.format[ApiKey] }
 
 class ApiKeyTable(tag: Tag) extends IDTable[ApiKeyID, ApiKey](tag, "eveats_apikeys") {

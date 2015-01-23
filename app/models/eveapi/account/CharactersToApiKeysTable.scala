@@ -1,7 +1,8 @@
-package models.eveapi.eve
+package models.eveapi.account
 
 import models.core.TypesafeID.driver.simple._
-import models.eveats.{ApiKey, ApiKeyTable, ApiKeyID}
+import models.eveapi.eve.{Character, CharacterID, CharacterTable}
+import models.eveats.{ApiKey, ApiKeyID, ApiKeyTable}
 
 import scala.slick.model.ForeignKeyAction.Cascade
 
